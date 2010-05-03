@@ -210,12 +210,16 @@ S.img.prototype = {
      * @param   {Object}        dims    The current Shadowbox dimensions
      * @public
      */
-    append: function(body, dims) {
+    append: function(body, dims, isFlip) {
         var img = document.createElement("img");
         img.id = this.id;
         img.src = this.obj.content;
         img.style.position = "absolute";
-
+				
+				if(isFlip) {
+	        img.style.opacity = 0.0;
+				}
+				
         var height, width;
         if (dims.oversized && S.options.handleOversize == "resize") {
             height = dims.innerHeight;

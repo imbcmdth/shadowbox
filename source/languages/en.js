@@ -6,6 +6,7 @@ S.lang = {
     code:       'en',
     of:         'of',
     loading:    'loading',
+    flip:     	'flip',
     cancel:     'Cancel',
     next:       'Next',
     previous:   'Previous',

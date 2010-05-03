@@ -278,7 +278,7 @@ S.options = {
      *
      * @type    {Function}
      */
-    onChange: noop,
+    onChange: fixup,
 
     /**
      * A hook function to be fired when closing. Is passed the most recent item
@@ -286,7 +286,7 @@ S.options = {
      *
      * @type    {Function}
      */
-    onClose: noop,
+    onClose: fixup,
 
     /**
      * A hook funciton to be fires when content is finished loading. Is passed the
@@ -375,6 +375,109 @@ S.isOpen = function() {
 S.isPaused = function() {
     return slideTimer == "pause";
 }
+
+var flip_2d = function(){
+	listenKeys(false);
+  var obj = S.getCurrent();
+  var player = (obj.player == "inline" ? "html" : obj.player);
+  var nS=$(obj.link).attr("flip");
+	if(nS){
+    S.revertOptions();
+	  S.applyOptions(obj.options || {});
+		if("isFlipped" in obj.options && obj.options.isFlipped===true){
+			obj.content = $(obj.link).attr("href");
+			obj.options.isFlipped = false;
+		} else {
+			obj.content = nS;
+			obj.options.isFlipped = true;
+		}
+		
+		var myShow = function() {
+			    if (!open)
+        return;
+        
+			var t = $(S.skin.body);
+   		S.player.append(t[0], S.dimensions, true);
+   		t.children("#sb-player").stop().animate({ opacity: 1.0 }, 1000);
+		//	t.children("#sb-player")
+
+  	  S.skin.onShow(finish);
+		};
+		
+		var myWaitReady = function() {
+			var old_obj = S.player;
+			old_obj.id = get(old_obj.id).id = "sb-player-old";
+			S.player = new S[player](obj, S.playerId);
+
+			var deleteAfterFade = (function(lobj){ return function(){ 
+				lobj.remove(); 
+				};
+			})(old_obj);
+			$(get("sb-player-old")).stop().animate({ opacity: 0.0 }, 1000, deleteAfterFade);
+			
+	    if (!open)
+	        return;
+	
+	    if (typeof S.player.ready != "undefined") {
+	        // wait for content to be ready before loading
+	        var timer = setInterval(function() {
+	            if (open) {
+	                if (S.player.ready) {
+	                    clearInterval(timer);
+	                    timer = null;
+	                    S.skin.onReady(myShow);
+	                }
+	            } else {
+	                clearInterval(timer);
+	                timer = null;
+	            }
+	        }, 10);
+	    } else {
+	        S.skin.onReady(myShow);
+	    }
+		};	
+		myWaitReady();
+  }
+};
+
+var flip_3d = function(){
+	var c = S.getCurrent();
+	var nS = $(c.link).attr("flip");
+	if(nS){
+		if("isFlipped" in c.options && c.options.isFlipped===true){
+			$("#sb-body-inner>img").revertFlip();
+			c.options.isFlipped = false;
+		} else {
+			$("#sb-body-inner>img").flip({
+				direction:'rl',
+				dontChangeColor: true,
+				content:nS
+			});
+			c.options.isFlipped = true;
+		}
+	}
+};
+
+S.flip = flip_2d;
+
+function fixup_2d(){
+  var obj = S.getCurrent();
+	if("isFlipped" in obj.options && obj.options.isFlipped===true){
+		obj.content = $(obj.link).attr("href");
+		obj.options.isFlipped = false;
+	}
+};
+
+var fixup_3d = function(){
+	var c = S.getCurrent();
+	if("isFlipped" in c.options && c.options.isFlipped===true){
+		c.options.isFlipped = false;
+	}
+};
+
+function fixup(){
+	fixup_2d();
+};
 
 /**
  * Applies the given set of options to Shadowbox' options. May be undone with revertOptions().

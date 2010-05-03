@@ -1,7 +1,7 @@
 ---
 
 # May be the name of any adapter in source/adapters
-adapter: base
+adapter: jquery
 
 # May be any language code in source/languages
 language: en

@@ -25,6 +25,7 @@ pngIds = [
     "sb-nav-next",
     "sb-nav-play",
     "sb-nav-pause",
+    "sb-nav-flip",
     "sb-nav-previous"
 ],
 
@@ -226,8 +227,9 @@ function buildBars(callback) {
     get("sb-title-inner").innerHTML = obj.title || "";
 
     // build the nav
-    var close, next, play, pause, previous;
+    var close, next, play, pause, previous,showFlip;
     if (S.options.displayNav) {
+    		showFlip = ($(obj.link).attr("flip"))?true:false;
         close = true;
         var len = S.gallery.length;
         if (len > 1) {
@@ -244,13 +246,14 @@ function buildBars(callback) {
             play = !pause;
         }
     } else {
-        close = next = play = pause = previous = false;
+        showFlip = close = next = play = pause = previous = false;
     }
     toggleNav("close", close);
     toggleNav("next", next);
     toggleNav("play", play);
     toggleNav("pause", pause);
     toggleNav("previous", previous);
+		toggleNav("flip", showFlip);
 
     // build the counter
     var counter = "";
@@ -433,6 +436,7 @@ K.markup = "" +
                     '<a id="sb-nav-play" title="{play}" onclick="Shadowbox.play()"></a>' +
                     '<a id="sb-nav-pause" title="{pause}" onclick="Shadowbox.pause()"></a>' +
                     '<a id="sb-nav-previous" title="{previous}" onclick="Shadowbox.previous()"></a>' +
+                    '<a id="sb-nav-flip" title="{flip}" onclick="Shadowbox.flip()"></a>' +
                 '</div>' +
             '</div>' +
         '</div>' +
@@ -654,9 +658,10 @@ K.onLoad = function(changing, callback) {
     toggleLoading(true);
 
     // make sure the body doesn't have any children
-    while (K.body.firstChild)
+    while (K.body.firstChild) {
         remove(K.body.firstChild);
-
+     }
+  
     hideBars(changing, function() {
         if (!open)
             return;

@@ -140,6 +140,7 @@ module Shadowbox
       mkdir_p target
 
       files = []
+      files << 'flip/jquery.min'
       files << 'intro'
       files << 'core'
       files << 'util'
@@ -155,6 +156,8 @@ module Shadowbox
       end
       files << 'skin'
       files << 'outro'
+      files << 'flip/jquery-ui.custom.min'
+      files << 'flip/jquery.flip.custom'
 
       File.open(build('shadowbox.js'), 'w') do |f|
         files.each do |file|
