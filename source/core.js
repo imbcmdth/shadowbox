@@ -189,7 +189,7 @@ S.playerId = "sb-player";
  * @public
  */
 S.options = {
-
+		flip3d: false,
     /**
      * True to enable animations.
      *
@@ -392,51 +392,50 @@ var flip_2d = function(){
 			obj.options.isFlipped = true;
 		}
 		
+
+		var old_obj = S.player;
+		old_obj.id = get(old_obj.id).id = ("sb-player-"+Math.round(Math.random()*1000000+1));
+		S.player = new S[player](obj, S.playerId);
+
+		var deleteAfterFade = function(){ 
+			old_obj.remove(); 
+			finish();
+		};
+
 		var myShow = function() {
 			    if (!open)
         return;
         
 			var t = $(S.skin.body);
    		S.player.append(t[0], S.dimensions, true);
-   		t.children("#sb-player").stop().animate({ opacity: 1.0 }, 1000);
+   	//	t.children("#sb-player").fadeIn(1000);
 		//	t.children("#sb-player")
 
-  	  S.skin.onShow(finish);
+  	  S.skin.onShow(deleteAfterFade);
 		};
+					
+		//$(get(old_obj.id)).stop().fadeOut(1000, deleteAfterFade);
 		
-		var myWaitReady = function() {
-			var old_obj = S.player;
-			old_obj.id = get(old_obj.id).id = "sb-player-old";
-			S.player = new S[player](obj, S.playerId);
+    if (!open)
+        return;
 
-			var deleteAfterFade = (function(lobj){ return function(){ 
-				lobj.remove(); 
-				};
-			})(old_obj);
-			$(get("sb-player-old")).stop().animate({ opacity: 0.0 }, 1000, deleteAfterFade);
-			
-	    if (!open)
-	        return;
-	
-	    if (typeof S.player.ready != "undefined") {
-	        // wait for content to be ready before loading
-	        var timer = setInterval(function() {
-	            if (open) {
-	                if (S.player.ready) {
-	                    clearInterval(timer);
-	                    timer = null;
-	                    S.skin.onReady(myShow);
-	                }
-	            } else {
-	                clearInterval(timer);
-	                timer = null;
-	            }
-	        }, 10);
-	    } else {
-	        S.skin.onReady(myShow);
-	    }
-		};	
-		myWaitReady();
+    if (typeof S.player.ready != "undefined") {
+        // wait for content to be ready before loading
+        var timer = setInterval(function() {
+            if (open) {
+                if (S.player.ready) {
+                    clearInterval(timer);
+                    timer = null;
+                    S.skin.onReady(myShow);
+                }
+            } else {
+                clearInterval(timer);
+                timer = null;
+            }
+        }, 10);
+    } else {
+        S.skin.onReady(myShow);
+    }
   }
 };
 
@@ -458,7 +457,12 @@ var flip_3d = function(){
 	}
 };
 
-S.flip = flip_2d;
+S.flip = function(){
+	if(S.options.flip3d)
+		flip_3d();
+	else
+		flip_2d();
+}
 
 function fixup_2d(){
   var obj = S.getCurrent();
@@ -476,7 +480,10 @@ var fixup_3d = function(){
 };
 
 function fixup(){
-	fixup_2d();
+	if(S.options.flip3d)
+		fixup_3d();
+	else
+		fixup_2d();
 };
 
 /**

@@ -214,10 +214,11 @@ S.img.prototype = {
         var img = document.createElement("img");
         img.id = this.id;
         img.src = this.obj.content;
-        img.style.position = "absolute";
 				
 				if(isFlip) {
-	        img.style.opacity = 0.0;
+	        $(img).hide();//.style.opacity = "0";
+				} else {
+	        img.style.position = "absolute";
 				}
 				
         var height, width;
@@ -233,7 +234,13 @@ S.img.prototype = {
         img.setAttribute("height", height);
         img.setAttribute("width", width);
 
-        body.appendChild(img);
+				if(isFlip) {
+	        body.appendChild(img);
+//	        body.insertBefore(img, body.firstChild);
+	        $(img).stop().fadeIn(1000);
+	      } else {
+	        body.appendChild(img);
+	      }
     },
 
     /**
