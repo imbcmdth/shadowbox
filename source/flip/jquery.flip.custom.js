@@ -120,15 +120,6 @@ $.fn.revertFlip = function(){
 	});
 };
 
-$.fn.revertInstant = function(){
-	return this.each( function(){
-		var $this = $(this);
-		var revertSettings = $this.data('flipRevertedSettings');
-		revertSettings.speed = 1;
-		$this.flip(revertSettings);		
-	});
-};
-
 $.fn.flip = function(settings){
     return this.each( function() {
         var $this=$(this), flipObj, $clone, dirOption, dirOptions, newContent, ie6=isIE6orOlder();
@@ -153,8 +144,8 @@ $.fn.flip = function(settings){
 				  return "bt";
 				}
 			})(settings.direction),
-			bgColor: acceptHexColor(settings.color) || "#999",
-			color: acceptHexColor(settings.bgColor) || $this.css("background-color"),
+			bgColor: acceptHexColor(settings.color) || $this.css("background-color"),
+			toColor: acceptHexColor(settings.bgColor) || $this.css("background-color"),
 			content: $this.attr('src'),
 			speed: settings.speed || 500,
             onBefore: settings.onBefore || function(){},
@@ -173,7 +164,7 @@ $.fn.flip = function(settings){
             bgColor: acceptHexColor(settings.bgColor) || $this.css("background-color"),
             fontSize: $this.css("font-size") || "12px",
             direction: settings.direction || "tb",
-            toColor: acceptHexColor(settings.color) || "#999",
+            toColor: acceptHexColor(settings.toColor) || $this.css("background-color"),
             speed: settings.speed || 500,
             top: $this.offset().top,
             left: $this.offset().left,
@@ -210,7 +201,7 @@ $.fn.flip = function(settings){
                 borderBottomColor:flipObj.transparent,
                 borderLeftColor:flipObj.transparent,
                 borderRightColor:flipObj.transparent,
-				background: "none",
+								background: 'none',
                 borderStyle:'solid',
                 height:0,
                 width:0
@@ -323,11 +314,11 @@ $.fn.flip = function(settings){
         $clone.animate(dirOption.first,flipObj.speed);
 
         $clone.queue(function(){
-            flipObj.onAnimation($clone,$this);
-            $clone.dequeue();
             var nC = newContent();
-						if(nC){ $this.attr('src', nC); }
+            flipObj.onAnimation($clone,$this,nC);
+            $clone.dequeue();
         });
+
         $clone.animate(dirOption.second,flipObj.speed);
 
         $clone.queue(function(){
@@ -335,7 +326,6 @@ $.fn.flip = function(settings){
                 $this.css({backgroundColor: flipObj.toColor});
             }
             $this.css({visibility: "visible"});
-//            if(nC){$this.html(nC);}
             $clone.remove();
             flipObj.onEnd($clone,$this);
             $this.removeData('flipLock');
