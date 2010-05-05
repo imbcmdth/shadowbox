@@ -480,8 +480,9 @@ var flip_3d = function(){
 				speed: (S.options.flipDuration / 2),
 				direction:flipDirection,
 				dontChangeColor: true,
-				bgColor:"#666",
-				toColor:"#666",
+				bgColor:"#777",
+				midColor:"#555",
+				toColor:"#777",
 				onBefore:function(){
 					deleteOldAfterFade();
 				},
