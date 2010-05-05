@@ -189,7 +189,9 @@ S.playerId = "sb-player";
  * @public
  */
 S.options = {
-		flip3d: false,
+		doFlip: null,
+		flipDuration: 1000,
+		fadeOldImage: false,
     /**
      * True to enable animations.
      *
@@ -380,7 +382,7 @@ var flip_2d = function(){
 	listenKeys(false);
   var obj = S.getCurrent();
   var player = (obj.player == "inline" ? "html" : obj.player);
-  var nS=$(obj.link).attr("flip");
+  var nS=$(obj.link).attr("rev");
 	if(nS){
     S.revertOptions();
 	  S.applyOptions(obj.options || {});
@@ -394,10 +396,10 @@ var flip_2d = function(){
 		
 
 		var old_obj = S.player;
-		old_obj.id = get(old_obj.id).id = ("sb-player-"+Math.round(Math.random()*1000000+1));
+		old_obj.id = get(old_obj.id).id = ("sb-player-old");
 		S.player = new S[player](obj, S.playerId);
 
-		var deleteAfterFade = function(){ 
+		var deleteOldAfterFade = function(){ 
 			old_obj.remove(); 
 			finish();
 		};
@@ -408,13 +410,15 @@ var flip_2d = function(){
         
 			var t = $(S.skin.body);
    		S.player.append(t[0], S.dimensions, true);
-   	//	t.children("#sb-player").fadeIn(1000);
-		//	t.children("#sb-player")
 
-  	  S.skin.onShow(deleteAfterFade);
+			if(S.options.fadeOldImage){
+				$(get(old_obj.id)).stop().fadeOut(S.options.flipDuration, deleteOldAfterFade);
+      	t.children("#sb-player").stop().fadeIn(S.options.flipDuration);
+			} else{
+      	t.children("#sb-player").stop().fadeIn(S.options.flipDuration, deleteOldAfterFade);
+      }
+  	  S.skin.onShow(finish);
 		};
-					
-		//$(get(old_obj.id)).stop().fadeOut(1000, deleteAfterFade);
 		
     if (!open)
         return;
@@ -440,28 +444,86 @@ var flip_2d = function(){
 };
 
 var flip_3d = function(){
-	var c = S.getCurrent();
-	var nS = $(c.link).attr("flip");
+	var obj = S.getCurrent();
+  var player = (obj.player == "inline" ? "html" : obj.player);
+  var nS=$(obj.link).attr("rev");
+	var flipDirection = "rl";
 	if(nS){
-		if("isFlipped" in c.options && c.options.isFlipped===true){
-			$("#sb-body-inner>img").revertFlip();
-			c.options.isFlipped = false;
+    S.revertOptions();
+	  S.applyOptions(obj.options || {});
+		if("isFlipped" in obj.options && obj.options.isFlipped===true){
+			obj.content = $(obj.link).attr("href");
+			obj.options.isFlipped = false;
+			flipDirection = "lr";
 		} else {
-			$("#sb-body-inner>img").flip({
-				direction:'rl',
-				dontChangeColor: true,
-				content:nS
-			});
-			c.options.isFlipped = true;
+			obj.content = nS;
+			obj.options.isFlipped = true;
 		}
+		
+		var old_obj = S.player;
+		old_obj.id = get(old_obj.id).id = ("sb-player-old");
+		S.player = new S[player](obj, S.playerId);
+
+		var deleteOldAfterFade = function(){ 
+			old_obj.remove(); 
+			finish();
+		};
+
+		var myShow = function() {
+			    if (!open)
+        return;
+        
+			var t = $(S.skin.body);
+   		S.player.append(t[0], S.dimensions, true);
+
+			$("#sb-body-inner>img").flip({
+				speed: (S.options.flipDuration / 2),
+				direction:flipDirection,
+				dontChangeColor: true,
+				bgColor:"#666",
+				toColor:"#666",
+				onBefore:function(){
+					deleteOldAfterFade();
+				},
+				onEnd:function(){
+					t.children("#sb-player").show();
+				}
+			});
+
+  	  S.skin.onShow(finish);
+		};
+		
+    if (!open)
+        return;
+
+    if (typeof S.player.ready != "undefined") {
+        // wait for content to be ready before loading
+        var timer = setInterval(function() {
+            if (open) {
+                if (S.player.ready) {
+                    clearInterval(timer);
+                    timer = null;
+                    S.skin.onReady(myShow);
+                }
+            } else {
+                clearInterval(timer);
+                timer = null;
+            }
+        }, 10);
+    } else {
+        S.skin.onReady(myShow);
+    }
 	}
 };
 
 S.flip = function(){
-	if(S.options.flip3d)
-		flip_3d();
-	else
-		flip_2d();
+	if("doFlip" in S.options){
+		if(S.options.doFlip.toLowerCase() == "flip"){
+			flip_3d();
+		}	else if(S.options.doFlip.toLowerCase() == "fade"){
+			flip_2d();
+		}
+	}
 }
 
 function fixup_2d(){
@@ -473,17 +535,21 @@ function fixup_2d(){
 };
 
 var fixup_3d = function(){
-	var c = S.getCurrent();
-	if("isFlipped" in c.options && c.options.isFlipped===true){
-		c.options.isFlipped = false;
+	var obj = S.getCurrent();
+	if("isFlipped" in obj.options && obj.options.isFlipped===true){
+		obj.content = $(obj.link).attr("href");
+		obj.options.isFlipped = false;
 	}
 };
 
 function fixup(){
-	if(S.options.flip3d)
-		fixup_3d();
-	else
-		fixup_2d();
+	if("doFlip" in S.options){
+		if(S.options.doFlip.toLowerCase() == "flip"){
+			fixup_3d();
+		}	else if(S.options.doFlip.toLowerCase() == "fade"){
+			fixup_2d();
+		}
+	}
 };
 
 /**
