@@ -113,13 +113,6 @@ $.extend( $.fx.step, {
     borderRightWidth: int_prop
 });
 
-$.fn.revertFlip = function(){
-	return this.each( function(){
-		var $this = $(this);
-		$this.flip($this.data('flipRevertedSettings'));		
-	});
-};
-
 $.fn.flip = function(settings){
     return this.each( function() {
         var $this=$(this), flipObj, $clone, dirOption, dirOptions, newContent, ie6=isIE6orOlder();
@@ -145,7 +138,8 @@ $.fn.flip = function(settings){
 				}
 			})(settings.direction),
 			bgColor: acceptHexColor(settings.color) || $this.css("background-color"),
-			toColor: acceptHexColor(settings.bgColor) || $this.css("background-color"),
+		  toColor: acceptHexColor(settings.bgColor) || $this.css("background-color"),
+	    midColor:acceptHexColor(settings.midColor) || $this.css("background-color"),
 			content: $this.attr('src'),
 			speed: settings.speed || 500,
             onBefore: settings.onBefore || function(){},
@@ -153,10 +147,7 @@ $.fn.flip = function(settings){
             onAnimation: settings.onAnimation || function(){}
 		};
 		
-		$this
-			.data('flipRevertedSettings',revertedSettings)
-			.data('flipLock',1)
-			.data('flipSettings',revertedSettings);
+		$this.data('flipLock',1);
 
         flipObj = {
             width: $this.width(),
@@ -165,6 +156,7 @@ $.fn.flip = function(settings){
             fontSize: $this.css("font-size") || "12px",
             direction: settings.direction || "tb",
             toColor: acceptHexColor(settings.toColor) || $this.css("background-color"),
+            midColor: acceptHexColor(settings.midColor) || $this.css("background-color"),
             speed: settings.speed || 500,
             top: $this.offset().top,
             left: $this.offset().left,
@@ -218,8 +210,8 @@ $.fn.flip = function(settings){
                     borderLeftWidth: waist,
                     borderRightWidth: waist,
                     borderBottomWidth: 0,
-                    borderTopColor: '#999',
-                    borderBottomColor: '#999',
+                    borderTopColor: flipObj.midColor,
+                    borderBottomColor: flipObj.midColor,
                     top: (flipObj.top+(flipObj.height/2)),
                     left: (flipObj.left-waist)},
                 "second": {
@@ -244,8 +236,8 @@ $.fn.flip = function(settings){
                     borderLeftWidth: 0,
                     borderRightWidth: 0,
                     borderBottomWidth: waist,
-                    borderLeftColor: '#999',
-                    borderRightColor: '#999',
+                    borderLeftColor: flipObj.midColor,
+                    borderRightColor: flipObj.midColor,
                     top: flipObj.top-waist,
                     left: flipObj.left+(flipObj.width/2)},
                 "second": {
