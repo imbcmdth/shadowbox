@@ -17,3 +17,9 @@ compress: YES
 
 # The directory to output the build to
 target: build
+
+# include jquery
+include_jQuery: NO
+
+# include jquery.ui and jquery.flip in final build
+include_3d_flip: YES

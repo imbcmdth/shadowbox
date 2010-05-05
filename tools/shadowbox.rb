@@ -73,7 +73,9 @@ module Shadowbox
       :language     => Shadowbox.default_language,
       :players      => Shadowbox.default_players,
       :css_support  => true,
-      :compress     => false
+      :compress     => false,
+      :include_3d_flip => true,
+      :include_jQuery => true
     }
 
     def initialize(data={})
@@ -140,7 +142,9 @@ module Shadowbox
       mkdir_p target
 
       files = []
-      files << 'flip/jquery.min'
+      if include_jQuery
+      	files << 'flip/jquery.min'
+      end
       files << 'intro'
       files << 'core'
       files << 'util'
@@ -156,8 +160,11 @@ module Shadowbox
       end
       files << 'skin'
       files << 'outro'
-      files << 'flip/jquery-ui.custom.min'
-      files << 'flip/jquery.flip.custom'
+      
+      if include_3d_flip
+      	files << 'flip/jquery-ui.custom.min'
+      	files << 'flip/jquery.flip.custom'
+      end
 
       File.open(build('shadowbox.js'), 'w') do |f|
         files.each do |file|
