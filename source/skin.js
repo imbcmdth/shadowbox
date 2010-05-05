@@ -229,8 +229,16 @@ function buildBars(callback) {
     // build the nav
     var close, next, play, pause, previous,showFlip;
     if (S.options.displayNav) {
-    		showFlip = ($(obj.link).attr("flip"))?true:false;
         close = true;
+
+			if("doFlip" in S.options){
+				if(S.options.doFlip.toLowerCase() == "flip" || S.options.doFlip.toLowerCase() == "fade"){
+	    		showFlip = ($(obj.link).attr("rev"))?true:false;
+				} else {
+					showFlip = false;
+				}
+			}
+
         var len = S.gallery.length;
         if (len > 1) {
             if (S.options.continuous) {

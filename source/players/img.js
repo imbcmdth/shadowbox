@@ -214,13 +214,12 @@ S.img.prototype = {
         var img = document.createElement("img");
         img.id = this.id;
         img.src = this.obj.content;
+        img.style.position = "absolute";
 				
-				if(isFlip) {
-	        $(img).hide();//.style.opacity = "0";
-				} else {
-	        img.style.position = "absolute";
+				if(S.options.doFlip.toLowerCase() == "fade" && isFlip) {
+	        img.style.display = "none";
 				}
-				
+
         var height, width;
         if (dims.oversized && S.options.handleOversize == "resize") {
             height = dims.innerHeight;
@@ -234,13 +233,7 @@ S.img.prototype = {
         img.setAttribute("height", height);
         img.setAttribute("width", width);
 
-				if(isFlip) {
-	        body.appendChild(img);
-//	        body.insertBefore(img, body.firstChild);
-	        $(img).stop().fadeIn(1000);
-	      } else {
-	        body.appendChild(img);
-	      }
+        body.appendChild(img);
     },
 
     /**
